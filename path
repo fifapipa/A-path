@@ -1,0 +1,46 @@
+from heapq import heappop, heappush
+
+def heuristic(a, b):
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+def a_star(grid, start, goal):
+    open_list = []
+    heappush(open_list, (0, start))
+    came_from = {}
+    cost_so_far = {start: 0}
+
+    while open_list:
+        current = heappop(open_list)[1]
+
+        if current == goal:
+            break
+
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            neighbor = (current[0] + dx, current[1] + dy)
+            if 0 <= neighbor[0] < len(grid) and 0 <= neighbor[1] < len(grid[0]) and not grid[neighbor[0]][neighbor[1]]:
+                new_cost = cost_so_far[current] + 1
+                if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
+                    cost_so_far[neighbor] = new_cost
+                    priority = new_cost + heuristic(goal, neighbor)
+                    heappush(open_list, (priority, neighbor))
+                    came_from[neighbor] = current
+
+    path = []
+    current = goal
+    while current != start:
+        path.append(current)
+        current = came_from.get(current)
+    path.append(start)
+    path.reverse()
+    return path
+
+grid = [
+    [0, 1, 0, 0, 0],
+    [0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0],
+    [0, 0, 0, 1, 0],
+    [1, 1, 0, 0, 0],
+]
+start, goal = (0, 0), (4, 4)
+path = a_star(grid, start, goal)
+print("Найденный путь:", path)
